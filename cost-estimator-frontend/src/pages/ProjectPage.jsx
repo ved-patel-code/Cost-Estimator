@@ -41,7 +41,7 @@ const ProjectPage = () => {
 
   const fetchProject = async () => {
     try {
-      const response = await api.get(`/projects/${id}/`);
+      const response = await api.get(`/projects/${id}`);
       setProjectData(response.data);
     } catch (error) {
       toast.error("Failed to load project details");
@@ -65,7 +65,7 @@ const ProjectPage = () => {
     const toastId = toast.loading(`Generating ${label}... Please wait.`);
 
     try {
-      const endpoint = `/projects/${id}/export/${type}/`;
+      const endpoint = `/projects/${id}/export/${type}`;
       const payload = { colors: theme, custom_filename: '' };
       const response = await api.post(endpoint, payload, { responseType: 'blob' });
 
