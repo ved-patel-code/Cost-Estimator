@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 import SimpleInputModal from '../common/SimpleInputModal';
 import ConfirmModal from '../common/ConfirmModal';
 
-// 1. Accept calculatedData prop
 const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSettings, projectId }) => {
   
   const [editingItem, setEditingItem] = useState(null); 
@@ -15,7 +14,7 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
   // --- MODAL STATES ---
   const [inputModal, setInputModal] = useState({ 
     isOpen: false, 
-    type: '', // 'create_cat', 'create_sub', 'rename_cat', 'rename_sub'
+    type: '',
     parentId: null, 
     targetId: null, 
     initialValue: '',
@@ -24,7 +23,7 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
-    type: '', // 'item', 'category', 'subcategory'
+    type: '',
     id: null,
     title: '',
     message: ''
@@ -32,7 +31,8 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   // --- API REFRESH HELPER ---
   const refreshProject = async () => {
-    const refresh = await api.get(`/projects/${projectId}`);
+    // FIX: Added trailing slash
+    const refresh = await api.get(`/projects/${projectId}/`);
     setProjectData(refresh.data);
   };
 
@@ -56,13 +56,17 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
   const handleInputSubmit = async (value) => {
     try {
       if (inputModal.type === 'create_cat') {
-        await api.post(`/projects/${projectId}/categories`, { name: value });
+        // FIX: Added trailing slash
+        await api.post(`/projects/${projectId}/categories/`, { name: value });
       } else if (inputModal.type === 'create_sub') {
-        await api.post(`/categories/${inputModal.parentId}/subcategories`, { name: value });
+        // FIX: Added trailing slash
+        await api.post(`/categories/${inputModal.parentId}/subcategories/`, { name: value });
       } else if (inputModal.type === 'rename_cat') {
-        await api.put(`/categories/${inputModal.targetId}`, { name: value });
+        // FIX: Added trailing slash
+        await api.put(`/categories/${inputModal.targetId}/`, { name: value });
       } else if (inputModal.type === 'rename_sub') {
-        await api.put(`/subcategories/${inputModal.targetId}`, { name: value });
+        // FIX: Added trailing slash
+        await api.put(`/subcategories/${inputModal.targetId}/`, { name: value });
       }
       refreshProject();
     } catch (e) {
@@ -85,14 +89,14 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   const handleDeleteConfirm = async () => {
     try {
-      if (deleteModal.type === 'item') await api.delete(`/items/${deleteModal.id}`);
-      if (deleteModal.type === 'category') await api.delete(`/categories/${deleteModal.id}`);
-      if (deleteModal.type === 'subcategory') await api.delete(`/subcategories/${deleteModal.id}`);
+      // FIX: Added trailing slashes to all delete calls
+      if (deleteModal.type === 'item') await api.delete(`/items/${deleteModal.id}/`);
+      if (deleteModal.type === 'category') await api.delete(`/categories/${deleteModal.id}/`);
+      if (deleteModal.type === 'subcategory') await api.delete(`/subcategories/${deleteModal.id}/`);
       
       toast.success("Deleted successfully");
       refreshProject();
       
-      // If we deleted an item being edited, close edit mode
       if (deleteModal.type === 'item' && editingItem?.item.id === deleteModal.id) {
         setEditingItem(null);
       }
@@ -109,7 +113,8 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
         category_id: location.type === 'category' ? location.id : location.categoryId,
         subcategory_id: location.type === 'subcategory' ? location.id : null,
       };
-      await api.post(`/projects/${projectId}/items`, payload);
+      // FIX: Added trailing slash
+      await api.post(`/projects/${projectId}/items/`, payload);
       refreshProject();
       setNewItemLocation(null);
       toast.success("Item added");
@@ -120,7 +125,8 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   const handleUpdateItem = async (itemData) => {
     try {
-      await api.put(`/items/${itemData.id}`, itemData);
+      // FIX: Added trailing slash
+      await api.put(`/items/${itemData.id}/`, itemData);
       refreshProject();
       setEditingItem(null);
       toast.success("Item updated");
@@ -128,7 +134,8 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
       toast.error("Failed to update item");
     }
   };
-
+  
+  // ... (the rest of your JSX rendering code does not need to change) ...
   // --- ITEM ROW RENDERER ---
   const ItemRow = ({ item, parentContext }) => (
     <div 

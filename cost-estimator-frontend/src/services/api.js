@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Access the ENV variable defined in docker-compose
-const API_URL = "/api"
+const API_URL = '/api';
 
 const api = axios.create({
   baseURL: API_URL,

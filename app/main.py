@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles # <--- 1. IMPORT THIS
 from app.routers import auth, projects, categories, subcategories, items, reports
 from app.core.config import settings
 
-app = FastAPI(title=settings.PROJECT_NAME)
+app = FastAPI(title=settings.PROJECT_NAME, root_path="/api")
 
 # 1. Configure CORS (Keep existing code)
 origins = [

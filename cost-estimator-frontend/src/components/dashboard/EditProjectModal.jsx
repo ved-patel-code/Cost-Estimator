@@ -71,13 +71,13 @@ const EditProjectModal = ({ isOpen, onClose, onProjectUpdated, projectData }) =>
 
     try {
       // 1. Update Text Details
-      await api.put(`/projects/${projectData.id}`, formData);
+      await api.put(`/projects/${projectData.id}/`, formData);
 
       // 2. Upload New Logo (Only if changed)
       if (logoFile) {
         const uploadData = new FormData();
         uploadData.append('file', logoFile);
-        await api.post(`/projects/${projectData.id}/logo`, uploadData, {
+        await api.post(`/projects/${projectData.id}/logo/`, uploadData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       }

@@ -16,7 +16,7 @@ const Dashboard = () => {
   // Fetch Projects function (reusable)
   const fetchProjects = async () => {
     try {
-      const response = await api.get('/projects');
+      const response = await api.get('/projects/');
       setProjects(response.data);
     } catch (error) {
       toast.error("Failed to load projects");

@@ -54,7 +54,7 @@ const CreateProjectModal = ({ isOpen, onClose, onProjectCreated }) => {
 
     try {
       // Step 1: Create the Project
-      const projectResponse = await api.post('/projects', formData);
+      const projectResponse = await api.post('/projects/', formData);
       const projectId = projectResponse.data.id;
 
       // Step 2: Upload Logo (if exists)
@@ -62,7 +62,7 @@ const CreateProjectModal = ({ isOpen, onClose, onProjectCreated }) => {
         const uploadData = new FormData();
         uploadData.append('file', logoFile);
         
-        await api.post(`/projects/${projectId}/logo`, uploadData, {
+        await api.post(`/projects/${projectId}/logo/`, uploadData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
