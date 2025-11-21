@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# Node/Frontend
+node_modules/
+dist/
+cost-estimator-frontend/node_modules/
+cost-estimator-frontend/dist/
+cost-estimator-frontend/.env
+
+# Docker
+.docker/
+
+# IDE
+.vscode/
+.idea/
+
+# Static Uploads (Don't overwrite server images with local test images)
+static/uploads/*
+!static/uploads/.gitkeep

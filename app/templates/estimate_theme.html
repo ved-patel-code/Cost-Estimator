@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Estimate</title>
+    <style>
+        /* VARIABLES */
+        :root {
+            --header-bg: {{ colors.header_bg }};
+            --header-text: {{ colors.header_text }};
+            --item-text: {{ colors.item_text }};
+            --category-bg: {{ colors.category_bg }};
+            --category-text: {{ colors.category_text }};
+            --subcategory-bg: {{ colors.subcategory_bg }};
+            --subcategory-text: {{ colors.subcategory_text }};
+        }
+
+        /* PAGE SETUP */
+        @page { size: A4 landscape; margin: 0.5cm; }
+        
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            /* INCREASED TEXT SIZE */
+            font-size: 7.5pt; 
+            color: var(--item-text);
+            line-height: 1.25;
+        }
+
+        /* HEADER GRID LAYOUT */
+        .header-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr 150px; 
+            align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            min-height: 80px;
+        }
+
+        /* LOGO STYLES */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .logo {
+            max-width: 100%;
+            max-height: 100px;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* PROJECT INFO */
+        .project-info { text-align: center; }
+        .project-info h1 { margin: 0; font-size: 14pt; font-weight: bold; text-transform: uppercase; }
+        .project-info p { margin: 2px 0; font-size: 9pt; }
+
+        /* TABLE STYLES */
+        .estimate-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            table-layout: auto; 
+            margin-bottom: 0; 
+        }
+
+        /* PAGE BREAK LOGIC */
+        thead { display: table-header-group; } 
+        tfoot { display: table-row-group; }
+        tr { page-break-inside: avoid; break-inside: avoid; }
+
+        /* BORDERS & PADDING */
+        .estimate-table th, .estimate-table td { 
+            border: 1px solid #ccc; 
+            padding: 4px 3px; /* Tighter padding for bigger text */
+            vertical-align: middle; 
+        }
+
+        /* --- HEADERS --- */
+        .estimate-table th { 
+            text-align: center; 
+            vertical-align: bottom; 
+            background-color: var(--header-bg); 
+            color: var(--header-text); 
+            font-weight: bold;
+            font-size: 7pt; /* Headers slightly smaller */
+        }
+
+        /* Header Break Rules */
+        .th-force-break {
+            white-space: normal;
+            word-spacing: 1000px; 
+            line-height: 1.1;
+        }
+        .th-nowrap { white-space: nowrap; }
+        .th-wrap { white-space: normal; word-break: normal; }
+
+        /* --- DATA CELLS --- */
+        .td-numeric { text-align: center; white-space: nowrap; width: 1%; }
+        
+        .td-text { 
+            text-align: left; 
+            white-space: normal; 
+            word-wrap: break-word; 
+            word-break: break-word; 
+        }
+
+        .td-uom {
+           text-align: center;
+           white-space: normal;
+           word-break: break-word;
+           min-width: 30px;
+        }
+
+        /* --- COLUMN SIZING --- */
+        .col-item { width: 35px; min-width: 35px; }
+        .col-cost { min-width: 50px; } 
+        
+        /* NARROW MARKUP COLUMN */
+        .col-markup { width: 40px; min-width: 40px; }
+        
+        .col-addon-markup { min-width: 65px; }
+        .col-desc { max-width: 110px; }
+        .col-prod { max-width: 70px; }
+
+        /* --- COLORS --- */
+        .category-row td { background-color: var(--category-bg); color: var(--category-text); font-weight: bold; font-size: 8.5pt; }
+        .subcategory-row td { background-color: var(--subcategory-bg); color: var(--subcategory-text); font-weight: bold; padding-left: 15px; }
+        .totals-row td { background-color: var(--header-bg); font-weight: bold; font-size: 8.5pt; border-top: 2px solid #000; }
+        .totals-label { text-align: right; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+{% macro item_row(item) %}
+<tr>
+    <td class="td-numeric">{{ item.item_no }}</td>
+    
+    <td class="td-text">{{ item.tag_spec | smart_break | safe }}</td>
+    <td class="td-text">{{ item.description | smart_break | safe }}</td>
+    <td class="td-text">{{ item.location | smart_break | safe }}</td>
+    <td class="td-text">{{ item.product_info | smart_break | safe }}</td>
+    <td class="td-text">{{ item.manufacturer | smart_break | safe }}</td>
+    
+    <td class="td-uom">{{ item.unit_of_measure }}</td>
+    
+    <td class="td-numeric">{{ "{:,.2f}".format(item.material_qty) }}</td>
+    <td class="td-numeric">{{ item.waste_factor_percent | percent }}</td>
+    <td class="td-numeric">{{ "{:,.2f}".format(item.waste_qty) }}</td>
+    <td class="td-numeric">{{ item.attic_stock_percent | percent }}</td>
+    <td class="td-numeric">{{ "{:,.2f}".format(item.attic_qty) }}</td>
+    <td class="td-numeric">{{ "{:,.2f}".format(item.total_qty) }}</td>
+    
+    <td class="td-numeric">{{ item.unit_cost_material | currency }}</td>
+    <td class="td-numeric">{{ item.unit_cost_adhesive | currency }}</td>
+    <td class="td-numeric">{{ item.unit_cost_freight | currency }}</td>
+    <td class="td-numeric">{{ item.unit_cost_receiving | currency }}</td>
+    <td class="td-numeric">{{ item.unit_cost_delivery | currency }}</td>
+    <td class="td-numeric">{{ item.unit_cost_labor | currency }}</td>
+    <td class="td-numeric">{{ item.total_addon | currency }}</td>
+    <td class="td-numeric">{{ item.total_material_cost | currency }}</td>
+    
+    <td class="td-numeric">{{ item.tax_percent | percent }}</td>
+    <td class="td-numeric">{{ item.tax_amount | currency }}</td>
+    <td class="td-numeric">{{ item.urban_total_plus_tax | currency }}</td>
+    
+    <td class="td-numeric">{{ item.markup_material_percent | percent }}</td>
+    <td class="td-numeric">{{ item.markup_material | currency }}</td>
+    <td class="td-numeric">{{ item.markup_addons_percent | percent }}</td>
+    <td class="td-numeric">{{ item.markup_addon | currency }}</td>
+    <td class="td-numeric">{{ item.total_client_cost | currency }}</td>
+</tr>
+{% endmacro %}
+
+<div class="page-container">
+    
+    <!-- GRID HEADER -->
+    <div class="header-grid">
+        <div class="logo-container">
+            {% if logo_data_uri %}
+            <img src="{{ logo_data_uri }}" alt="Company Logo" class="logo">
+            {% endif %}
+        </div>
+        <div class="project-info">
+            <h1>{{ project.company_name }}</h1>
+            <p><strong>Project:</strong> {{ project.project_name }}</p>
+            <p><strong>Address:</strong> {{ project.project_address }}</p>
+            <p><strong>Architect:</strong> {{ project.architect_info }}</p>
+            <p><strong>Date:</strong> {{ project.project_date }}</p>
+            <p><strong>Revision:</strong> {{ project.revision_counter or project.revision or '0' }}</p>
+        </div>
+        <div></div>
+    </div>
+
+    <!-- TABLE -->
+    <table class="estimate-table">
+        <thead>
+            <tr>
+                <th class="th-wrap col-item">Item No</th>
+                <th class="th-wrap">Tag/ Spec</th>
+                <th class="th-wrap col-desc">Description</th>
+                <th class="th-nowrap">Location</th>
+                <th class="th-wrap col-prod">Product Info</th>
+                <th class="th-wrap">Manufacturer</th>
+                <th class="th-nowrap">UoM</th>
+                
+                <th class="th-wrap">Material Qty</th>
+                <th class="th-wrap">Waste %</th>
+                <th class="th-wrap">Waste Qty</th>
+                <th class="th-wrap">Attic %</th>
+                
+                <th class="th-force-break">Attic Qty</th>
+                <th class="th-force-break">Total Qty</th>
+                
+                <th class="th-nowrap col-cost">Material</th>
+                <th class="th-nowrap col-cost">Adhesive</th>
+                <th class="th-nowrap col-cost">Freight</th>
+                <th class="th-nowrap col-cost">Receiving</th>
+                <th class="th-nowrap col-cost">Delivery</th>
+                <th class="th-nowrap col-cost">Labor</th>
+                
+                <th class="th-wrap">Total AddOn</th>
+                <th class="th-wrap">Total Material Cost</th>
+                <th class="th-wrap">Tax %</th>
+                <th class="th-nowrap">Tax</th>
+                <th class="th-wrap">URBAN Total + Tax</th>
+                
+                <!-- MARKUP COLUMN: NARROWER -->
+                <th class="th-wrap col-markup">Mark up Material %</th>
+                
+                <th class="th-wrap">Material Markup</th>
+                <th class="th-wrap">Mark up Add On %</th>
+                <th class="th-wrap col-addon-markup">AddOn Markup</th>
+                <th class="th-wrap">Total Cost to Client</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for category in categories %}
+                <tr class="category-row"><td colspan="29">{{ category.name }}</td></tr>
+                {% for item in category['items'] %}
+                    {{ item_row(item) }}
+                {% endfor %}
+                {% for subcat in category.subcategories %}
+                    <tr class="subcategory-row"><td colspan="29">{{ subcat.name }}</td></tr>
+                    {% for item in subcat['items'] %}
+                        {{ item_row(item) }}
+                    {% endfor %}
+                {% endfor %}
+            {% endfor %}
+
+            <tr class="totals-row">
+                <td colspan="20" class="totals-label">GRAND TOTALS:</td>
+                <td class="td-numeric">{{ totals.total_material_cost | currency }}</td>
+                <td></td>
+                <td class="td-numeric">{{ totals.tax_amount | currency }}</td>
+                <td class="td-numeric">{{ totals.total_plus_tax | currency }}</td>
+                <td></td>
+                <td class="td-numeric">{{ totals.markup_material | currency }}</td>
+                <td></td>
+                <td class="td-numeric">{{ totals.markup_addon | currency }}</td>
+                <td class="td-numeric">{{ totals.total_client_cost | currency }}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
