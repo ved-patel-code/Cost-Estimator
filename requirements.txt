@@ -14,3 +14,4 @@ jinja2==3.1.3
 aiofiles==23.2.1
 Pillow
 email-validator
+gunicorn==21.2.0 
