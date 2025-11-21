@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, FolderPlus, Edit2, ChevronRight, Trash2, MoreHorizontal } from 'lucide-react';
+import { Plus, FolderPlus, Edit2, ChevronRight, Trash2 } from 'lucide-react';
 import ItemForm from './ItemForm';
 import api from '../../services/api';
 import { toast } from 'react-toastify';
@@ -14,7 +14,7 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
   // --- MODAL STATES ---
   const [inputModal, setInputModal] = useState({ 
     isOpen: false, 
-    type: '',
+    type: '', 
     parentId: null, 
     targetId: null, 
     initialValue: '',
@@ -23,7 +23,7 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   const [deleteModal, setDeleteModal] = useState({
     isOpen: false,
-    type: '',
+    type: '', 
     id: null,
     title: '',
     message: ''
@@ -31,7 +31,6 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   // --- API REFRESH HELPER ---
   const refreshProject = async () => {
-    // FIX: Added trailing slash
     const refresh = await api.get(`/projects/${projectId}/`);
     setProjectData(refresh.data);
   };
@@ -56,16 +55,12 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
   const handleInputSubmit = async (value) => {
     try {
       if (inputModal.type === 'create_cat') {
-        // FIX: Added trailing slash
         await api.post(`/projects/${projectId}/categories/`, { name: value });
       } else if (inputModal.type === 'create_sub') {
-        // FIX: Added trailing slash
         await api.post(`/categories/${inputModal.parentId}/subcategories/`, { name: value });
       } else if (inputModal.type === 'rename_cat') {
-        // FIX: Added trailing slash
         await api.put(`/categories/${inputModal.targetId}/`, { name: value });
       } else if (inputModal.type === 'rename_sub') {
-        // FIX: Added trailing slash
         await api.put(`/subcategories/${inputModal.targetId}/`, { name: value });
       }
       refreshProject();
@@ -89,7 +84,6 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   const handleDeleteConfirm = async () => {
     try {
-      // FIX: Added trailing slashes to all delete calls
       if (deleteModal.type === 'item') await api.delete(`/items/${deleteModal.id}/`);
       if (deleteModal.type === 'category') await api.delete(`/categories/${deleteModal.id}/`);
       if (deleteModal.type === 'subcategory') await api.delete(`/subcategories/${deleteModal.id}/`);
@@ -113,7 +107,6 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
         category_id: location.type === 'category' ? location.id : location.categoryId,
         subcategory_id: location.type === 'subcategory' ? location.id : null,
       };
-      // FIX: Added trailing slash
       await api.post(`/projects/${projectId}/items/`, payload);
       refreshProject();
       setNewItemLocation(null);
@@ -125,7 +118,6 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
 
   const handleUpdateItem = async (itemData) => {
     try {
-      // FIX: Added trailing slash
       await api.put(`/items/${itemData.id}/`, itemData);
       refreshProject();
       setEditingItem(null);
@@ -134,8 +126,7 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
       toast.error("Failed to update item");
     }
   };
-  
-  // ... (the rest of your JSX rendering code does not need to change) ...
+
   // --- ITEM ROW RENDERER ---
   const ItemRow = ({ item, parentContext }) => (
     <div 
@@ -170,23 +161,21 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
             
             {/* Left Side: Name & Edit Actions */}
             <div className="flex items-center gap-3 flex-1 min-w-0 pr-2">
-              {/* Name Truncated */}
               <h3 className="font-bold text-primary uppercase tracking-wide text-sm truncate" title={cat.name}>
                 {cat.name}
               </h3>
               
-              {/* Edit/Delete Buttons - Fixed Width container so layout doesn't jump */}
               <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity border-l border-gray-300 pl-2 gap-1 flex-shrink-0">
                 <button onClick={(e) => {e.stopPropagation(); openRenameCategory(cat)}} className="p-1.5 text-gray-500 hover:text-blue-600 rounded hover:bg-blue-50" title="Rename Category">
-                  <Edit2 size={16} /> {/* Bigger Icon */}
+                  <Edit2 size={16} /> 
                 </button>
                 <button onClick={(e) => {e.stopPropagation(); confirmDeleteCategory(cat.id)}} className="p-1.5 text-gray-500 hover:text-red-600 rounded hover:bg-red-50" title="Delete Category">
-                  <Trash2 size={16} /> {/* Bigger Icon */}
+                  <Trash2 size={16} /> 
                 </button>
               </div>
             </div>
 
-            {/* Right Side: Add Buttons (Always Visible) */}
+            {/* Right Side: Add Buttons */}
             <div className="flex gap-1 flex-shrink-0">
               <button onClick={(e) => {e.stopPropagation(); openCreateSubcategory(cat.id)}} className="flex items-center gap-1 px-2 py-1 hover:bg-white rounded text-xs text-gray-600 border border-transparent hover:border-gray-200 transition-all whitespace-nowrap" title="Add Subcategory">
                 <FolderPlus size={14} /> <span className="hidden sm:inline">Subcat</span>
@@ -237,27 +226,23 @@ const CategoryManager = ({ projectData, calculatedData, setProjectData, globalSe
               {/* SUBCATEGORY HEADER */}
               <div className="bg-gray-50 p-2 flex items-center justify-between rounded-r pr-3 group h-10">
                 
-                {/* Left Side */}
                 <div className="flex items-center gap-2 pl-2 flex-1 min-w-0 pr-2">
                    <ChevronRight size={14} className="text-gray-400 flex-shrink-0" />
                    
-                   {/* Name Truncated */}
                    <span className="font-bold text-sm text-gray-600 truncate" title={sub.name}>
                      {sub.name}
                    </span>
                    
-                   {/* Edit/Delete Buttons */}
                    <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity ml-2 gap-1 flex-shrink-0 border-l border-gray-300 pl-2">
                       <button onClick={(e) => {e.stopPropagation(); openRenameSubcategory(sub)}} className="p-1 text-gray-400 hover:text-blue-600" title="Rename Subcategory">
-                        <Edit2 size={14} /> {/* Bigger Icon */}
+                        <Edit2 size={14} /> 
                       </button>
                       <button onClick={(e) => {e.stopPropagation(); confirmDeleteSubcategory(sub.id)}} className="p-1 text-gray-400 hover:text-red-600" title="Delete Subcategory">
-                        <Trash2 size={14} /> {/* Bigger Icon */}
+                        <Trash2 size={14} /> 
                       </button>
                    </div>
                 </div>
 
-                {/* Right Side */}
                 <button onClick={() => setNewItemLocation({ type: 'subcategory', id: sub.id, categoryId: cat.id })} className="p-1 hover:bg-white rounded text-gray-500 hover:text-primary flex-shrink-0">
                   <Plus size={14} />
                 </button>
