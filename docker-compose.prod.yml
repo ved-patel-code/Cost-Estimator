@@ -18,7 +18,7 @@ services:
     container_name: cost_estimator_backend
     # UPDATED COMMAND BELOW:
     # Added "--forwarded-allow-ips '*'" so Uvicorn trusts the HTTPS header from Nginx
-    command: gunicorn app.main:app --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --forwarded-allow-ips '*'
+    command: gunicorn app.main:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000 --forwarded-allow-ips '*'
     restart: always
     volumes:
       - .:/app
